@@ -14,17 +14,18 @@ if (!function_exists('posted_in')) {
 	function posted_in() {
 		$categories = get_the_category_list(', ');
 		$tags = get_the_tag_list('', ', ');
-		$fmt = '. Bookmark the <a href="%3$s" title="Permalink to %4$s" rel="bookmark">permalink</a>.';
 
+		$fmt = '<div id="posted-in-info" style="font-size: 14px; line-height: 1.6em; margin: 3px 0 10px;">';
 		if ($tags != '') {
-			$fmt = 'This entry was posted in %1$s and tagged %2$s by <a href="%6$s">%5$s</a>' . $fmt;
+			$fmt .= 'This entry was posted in %1$s and tagged %2$s';
 		} else if ($categories != '') {
-			$fmt = 'This entry was posted in %1$s by <a href="%6$s">%5$s</a>' . $fmt;
+			$fmt .= 'This entry was posted in %1$s';
 		} else {
-			$fmt = 'This entry was posted by <a href="%6$s">%5$s</a>' . $fmt;
+			$fmt .= 'This entry was posted';
 		}
+		$fmt .= ' by <a href="%6$s">%5$s</a>. Bookmark the <a href="%3$s" title="Permalink to %4$s" rel="bookmark">permalink</a>.</div>';
 
-		printf(
+		return sprintf(
 			$fmt,
 			$categories,
 			$tags,
@@ -34,4 +35,13 @@ if (!function_exists('posted_in')) {
 			esc_url(get_author_posts_url(get_the_author_meta('ID')))
 		);
 	}
+
+	function posted_in_content_filter($content) {
+		if (is_single()) {
+			$content .= posted_in();
+		}
+		return $content;
+	}
+	add_filter('the_content', 'posted_in_content_filter', 14);
+
 }
